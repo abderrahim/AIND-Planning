@@ -201,8 +201,24 @@ class AirCargoProblem(Problem):
         conditions by ignoring the preconditions required for an action to be
         executed.
         """
-        # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
+        action_effects = []
+
+        for action in self.actions_list:
+            action_effects.append([effect for effect in action.effect_add if effect in self.goal])
+
+        # greedy implementation of a set cover
+        current = set(decode_state(node.state, self.state_map).pos)
+        action_effects = [action for action in action_effects if not current.issuperset(action)]
+
+        while action_effects:
+            best = max(action_effects, key=lambda a: len(current.union(a)))
+
+            count += 1
+            current.update(best)
+
+            action_effects = [action for action in action_effects if not current.issuperset(action)]
+
         return count
 
 
