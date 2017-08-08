@@ -196,6 +196,12 @@ def mutexify(node1: PgNode, node2: PgNode):
     node1.mutex.add(node2)
     node2.mutex.add(node1)
 
+def intersect(set1, set2):
+    """ return whether the two given sets have nonempty intersection. """
+    for elem in set1:
+        if elem in set2:
+            return True
+    return False
 
 class PlanningGraph():
     """
@@ -395,11 +401,8 @@ class PlanningGraph():
         :return: bool
         """
 
-        if set(node_a1.action.effect_add).intersection(node_a2.action.effect_rem) \
-           or set(node_a1.action.effect_rem).intersection(node_a2.action.effect_add):
-            return True
-
-        return False
+        return intersect(node_a1.action.effect_add, node_a2.action.effect_rem) \
+           or intersect(node_a1.action.effect_rem, node_a2.action.effect_add)
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -416,13 +419,10 @@ class PlanningGraph():
         :return: bool
         """
 
-        if set(node_a1.action.effect_add).intersection(node_a2.action.precond_neg) \
-           or set(node_a1.action.effect_rem).intersection(node_a2.action.precond_pos) \
-           or set(node_a1.action.precond_neg).intersection(node_a2.action.effect_add) \
-           or set(node_a1.action.precond_pos).intersection(node_a2.action.effect_rem):
-            return True
-
-        return False
+        return intersect(node_a1.action.effect_add, node_a2.action.precond_neg) \
+           or intersect(node_a1.action.effect_rem, node_a2.action.precond_pos) \
+           or intersect(node_a1.action.precond_neg, node_a2.action.effect_add) \
+           or intersect(node_a1.action.precond_pos, node_a2.action.effect_rem)
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
