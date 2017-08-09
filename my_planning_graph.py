@@ -511,24 +511,15 @@ class PlanningGraph():
         :return: int
         """
         level_sum = 0
-        # for each goal in the problem, determine the level cost, then add them together
-        # print(len(self.s_levels))
-        # print(len(self.a_levels))
-        # for level, literals in enumerate(self.s_levels):
-        #     print(level, end=': ')
-        #     for l in literals:
-        #         print(l.symbol, l.is_pos, end=' ')
-        #     print()
 
+        # for each goal in the problem, determine the level cost, then add them together
         for literal in self.problem.goal:
             for level, literals in enumerate(self.s_levels):
                 if PgNode_s(literal, True) in literals:
-                    #print(level, literal)
                     level_sum += level
                     break
             else:
-                level_sum = float('inf')
+                # problem is unsolvable
+                return float('inf')
 
-        #print(self.fs.pos, self.problem.goal, level_sum)
-        #print()
         return level_sum
