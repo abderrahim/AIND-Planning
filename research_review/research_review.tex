@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=3cm]{geometry}
+\usepackage[english]{babel}
+\usepackage[backend=biber,style=authoryear]{biblatex}
+\addbibresource{bibliography.bib}
+
+\title{Review of historical development of AI planning and search}
+\author{Abderrahim Kitouni}
+
+\begin{document}
+\maketitle
+
+In this paper, I describe some important historical developments in the field of AI planning.
+\section{Interleaving and partial-order planning}
+Early planners used to generate plans for multiple subgoals independently, and stringing them together to form a plan for the entire goal. Unfortunately, this does not always produce a correct plan. A correct plan needs interleaving actions from subplans in order for them not to interfere with each other. This was first done by \textcite{waldinger1975achieving}.
+
+This has led to introduce the development of partial-order planners, as interleaving actions do not always need to happen in a given order. This approach was popular for nearly 20 years, from \textcite{sacerdoti1975nonlinear} and \textcite{tate1977generating} to \textcite{penberthy1992ucpop}.
+
+
+\section{Planning as Boolean satisfiability}
+Another very important technique in planning consists of translating the planning problem to a Boolean satisfiability problem. One influential planner that used this technique is \textsc{SatPlan}, by \textcite{kautz1992planning,kautz1996pushing}. It allowed planning to take advantage of all the algorithms developed for satisfiability. It outperformed many planning algorithms of the time.
+
+\section{Planning graphs}
+Planning graphs were introduced by \textcite{blum1997fast} as a basis for their \textsc{Graphplan} planner. Planning graphs are an approximation to the problem state space that can be computed in polynomial time and polynomial space. \textsc{Graphplan} uses the planning graph to search for a plan rather than searching the full state-space.
+
+Planning graphs have been used in other planners as well. They can be used as heuristics for a searching the state-space using A*. They have been used by the \textsc{Blackbox} planner of \textcite{kautz1998blackbox, kautz1999unifying}, which works by converting the planning graph to a Boolean satisfiability problem. They have also been used by the \textsc{STAN} planner of \textcite{long1999efficient}, which improves upon \textsc{Graphplan} by proposing efficient data structures for computing and storing the planning graph. Koehler and Hoffmann's IPP system \parencite{koehler1997extending}, and later Hoffmann and Nebel's FF \parencite{hoffmann2001ff} also used planning graphs.
+
+\printbibliography
+\end{document}
