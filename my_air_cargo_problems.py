@@ -48,12 +48,6 @@ class AirCargoProblem(Problem):
             list of Action objects
         """
 
-        # TODO create concrete Action objects based on the domain action schema for: Load, Unload, and Fly
-        # concrete actions definition: specific literal action that does not include variables as with the schema
-        # for example, the action schema 'Load(c, p, a)' can represent the concrete actions 'Load(C1, P1, SFO)'
-        # or 'Load(C2, P2, JFK)'.  The actions for the planning problem must be concrete because the problems in
-        # forward search and Planning Graphs must use Propositional Logic
-
         def load_actions():
             """Create all concrete Load actions and return a list
 
@@ -70,7 +64,9 @@ class AirCargoProblem(Problem):
                         effects_add = [expr('In({}, {})'.format(c, p))]
                         effects_rm = [expr('At({}, {})'.format(c, a))]
 
-                        loads.append(Action(action, [preconds_pos, preconds_neg], [effects_add, effects_rm]))
+                        loads.append(Action(action,
+                                            [preconds_pos, preconds_neg],
+                                            [effects_add, effects_rm]))
             return loads
 
         def unload_actions():
@@ -89,7 +85,9 @@ class AirCargoProblem(Problem):
                         effects_add = [expr('At({}, {})'.format(c, a))]
                         effects_rm = [expr('In({}, {})'.format(c, p))]
 
-                        unloads.append(Action(action, [preconds_pos, preconds_neg], [effects_add, effects_rm]))
+                        unloads.append(Action(action,
+                                              [preconds_pos, preconds_neg],
+                                              [effects_add, effects_rm]))
             return unloads
 
         def fly_actions():
@@ -102,15 +100,15 @@ class AirCargoProblem(Problem):
                 for to in self.airports:
                     if fr != to:
                         for p in self.planes:
-                            precond_pos = [expr("At({}, {})".format(p, fr)),
-                                           ]
+                            action = expr("Fly({}, {}, {})".format(p, fr, to))
+                            precond_pos = [expr("At({}, {})".format(p, fr))]
                             precond_neg = []
                             effect_add = [expr("At({}, {})".format(p, to))]
                             effect_rem = [expr("At({}, {})".format(p, fr))]
-                            fly = Action(expr("Fly({}, {}, {})".format(p, fr, to)),
-                                         [precond_pos, precond_neg],
-                                         [effect_add, effect_rem])
-                            flys.append(fly)
+
+                            flys.append(Action(action,
+                                               [precond_pos, precond_neg],
+                                               [effect_add, effect_rem]))
             return flys
 
         return load_actions() + unload_actions() + fly_actions()
@@ -123,7 +121,6 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
         possible_actions = []
         fluent_state = decode_state(state, self.state_map)
 
@@ -198,20 +195,23 @@ class AirCargoProblem(Problem):
         count = 0
         action_effects = []
 
+        # keep only positive effects that are relevant for the goal
         for action in self.actions_list:
             action_effects.append([effect for effect in action.effect_add if effect in self.goal])
 
-        # greedy implementation of a set cover
+        # try to find the minimum number of actions to satisfy the goal
+        # this uses greedy implementation of a set cover (so is not always minimum)
         current = set(decode_state(node.state, self.state_map).pos)
-        action_effects = [action for action in action_effects if not current.issuperset(action)]
 
-        while action_effects:
+        while True:
+            action_effects = [action for action in action_effects if not current.issuperset(action)]
+            if not action_effects:
+                break
+
             best = max(action_effects, key=lambda a: len(current.union(a)))
 
             count += 1
             current.update(best)
-
-            action_effects = [action for action in action_effects if not current.issuperset(action)]
 
         return count
 

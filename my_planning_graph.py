@@ -315,6 +315,7 @@ class PlanningGraph():
             a_node = PgNode_a(action)
             if all(literal in self.s_levels[level] for literal in a_node.prenodes):
                 self.a_levels[level].add(a_node)
+
         # 2. connect the nodes to the previous S literal level
         for s_node in self.s_levels[level]:
             for a_node in self.a_levels[level]:
@@ -337,6 +338,7 @@ class PlanningGraph():
         for a_node in self.a_levels[level - 1]:
             for eff in a_node.effnodes:
                 self.s_levels[level].add(PgNode_s(eff.symbol, eff.is_pos))
+
         # 2. connect the nodes
         for a_node in self.a_levels[level - 1]:
             for s_node in self.s_levels[level]:
@@ -435,7 +437,9 @@ class PlanningGraph():
         :return: bool
         """
 
-        # we need to check parent nodes instead of
+        # we need to check parent nodes instead of action preconditions in this
+        # case because mutex is a property of the graph
+
         for node_s1 in node_a1.parents:
             for node_s2 in node_a2.parents:
                 if node_s1.is_mutex(node_s2):
